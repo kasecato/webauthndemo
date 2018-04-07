@@ -58,6 +58,7 @@ async function _fetch(url, obj) {
   for (let key in obj) {
     body.append(key, obj[key]);
   }
+  body.append('_csrf', csrfToken);
   const response = await fetch(url, {
     method: 'POST',
     headers: headers,
@@ -135,29 +136,7 @@ async function addCredential() {
   removeMsgs();
   show('#active');
   try {
-    const advancedOptions = {};
-    if (isChecked('#switch-advanced')) {
-      if (isChecked('#switch-rk')) {
-        advancedOptions.requireResidentKey = isChecked('#switch-rk');
-      }
-      if (isChecked('#switch-rr')) {
-        advancedOptions.excludeCredentials = isChecked('#switch-rk');
-      }
-      if ($('#userVerification').value != "none") {
-        advancedOptions.userVerification = $('#userVerification').value;
-      }
-      if ($('#attachment').value != "none") {
-        advancedOptions.authenticatorAttachment = $('#attachment').value;
-      }
-      if ($('#conveyance').value != "NA") {
-        advancedOptions.attestationConveyancePreference = $('#conveyance').value;
-      }
-    }
-
-    const options = await _fetch('/BeginMakeCredential', {
-      advanced: isChecked('#switch-advanced'),
-      advancedOptions: JSON.stringify(advancedOptions)
-    });
+    const options = await _fetch('/BeginMakeCredential');
 
     const makeCredentialOptions = {};
 
@@ -339,11 +318,4 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('load', () => {
   onClick('#credential-button', addCredential);
   onClick('#authenticate-button', getAssertion);
-  onClick('#switch-advanced', () => {
-    if (isChecked('#switch-advanced')) {
-      show('#advanced');
-    } else {
-      hide('#advanced');
-    }
-  });
 });
