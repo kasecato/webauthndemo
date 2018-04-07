@@ -15,98 +15,98 @@
  */
 
 .mdl-cell {
-  padding: 30px;
-  text-align: left;
+    padding: 30px;
+    text-align: left;
 }
 
 .mdl-card__subtitle-text {
-  padding-left: .2cm;
-  font-weight: bold;
+    padding-left: .2cm;
+    font-weight: bold;
 }
 
 .mdl-card__supporting-text {
-  font-style: italic;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
+    font-style: italic;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .advanced-switch {
-  background-color: white;
-  padding-top: .2cm;
-  padding-bottom: .2cm;
-  padding-left: .2cm;
+    background-color: white;
+    padding-top: .2cm;
+    padding-bottom: .2cm;
+    padding-left: .2cm;
 }
 
 .advanced {
-  background-color: white;
-  padding-top: .2cm;
-  padding-bottom: .2cm;
-  padding-left: .2cm;
-  border-size: 1px;
-  border-style: solid;
-  border-color: #009688;
+    background-color: white;
+    padding-top: .2cm;
+    padding-bottom: .2cm;
+    padding-left: .2cm;
+    border-size: 1px;
+    border-style: solid;
+    border-color: #009688;
 }
 
 .attachment {
-  font-size: medium;
+    font-size: medium;
 }
 
 .auth-button {
-  margin-left: .25cm;
-  margin-right: .25cm;
+    margin-left: .25cm;
+    margin-right: .25cm;
 }
 
 .make-button {
-  margin-left: .25cm;
-  margin-right: .25cm;
+    margin-left: .25cm;
+    margin-right: .25cm;
 }
 
 .logout-button {
-  margin-left: .25cm;
-  margin-right: .25cm;
-  color: white;
+    margin-left: .25cm;
+    margin-right: .25cm;
+    color: white;
 }
 
 .hidden {
-  display: none;
+    display: none;
 }
 
 .activity-bar {
-  padding-top: 0;
-  padding-bottom: .2cm;
-  margin: 0;
+    padding-top: 0;
+    padding-bottom: .2cm;
+    margin: 0;
 }
 
 .page-width {
-  width: 100%;
+    width: 100%;
 }
 
 .active-text {
-  margin: 0;
-  background-color: white;
-  text-align: center;
-  font-size: medium;
+    margin: 0;
+    background-color: white;
+    text-align: center;
+    font-size: medium;
 }
 
 .error-text {
-  margin: 0;
-  background-color: white;
-  color: #a41e1e;
-  text-align: center;
-  font-size: medium;
+    margin: 0;
+    background-color: white;
+    color: #a41e1e;
+    text-align: center;
+    font-size: medium;
 }
 
 .success-text {
-  margin: 0;
-  background-color: white;
-  color: #336eff;
-  text-align: center;
-  font-size: medium;
+    margin: 0;
+    background-color: white;
+    color: #336eff;
+    text-align: center;
+    font-size: medium;
 }
 
 .github-link {
-  background-color: white;
-  padding-top: .2cm;
-  padding-bottom: .2cm;
-  padding-left: .2cm;
+    background-color: white;
+    padding-top: .2cm;
+    padding-bottom: .2cm;
+    padding-left: .2cm;
 }
