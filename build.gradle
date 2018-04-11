@@ -1,53 +1,92 @@
 plugins {
-    id 'org.springframework.boot' version '2.0.1.RELEASE'
     id "net.ltgt.errorprone" version "0.0.13"
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+apply plugin: 'maven-publish'
 
-springBoot {
-    buildInfo {
-        properties {
-            artifact = 'springdemo'
-            version = '1.0.0-SNAPSHOT'
-            group = 'com.google.webauthn'
-            name = 'Spring Boot Web Authn'
-        }
-    }
+ext {
+    compatibilityVersion = '1.8'
+    snapshotRepoPass = project.hasProperty('snapshotRepoPass') ? project.getProperty('snapshotRepoPass') : ''
 }
-
-sourceCompatibility = 1.8
-
-compileJava {
-    targetCompatibility = 1.8
-}
+sourceCompatibility = compatibilityVersion
+targetCompatibility = compatibilityVersion
 
 repositories {
     mavenCentral()
-    maven { url "https://repo.spring.io/snapshot" }
-    maven { url "https://repo.spring.io/milestone" }
+}
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+    version = 4.6
 }
 
 dependencies {
     errorprone 'com.google.errorprone:error_prone_core:2.2.0'
 
-    compile('co.nstant.in:cbor:0.8')
-    compile('com.google.guava:guava:24.1-jre')
-    compile('com.google.http-client:google-http-client-jackson2:1.23.0')
-    compile('javax.inject:javax.inject:1')
-    compile('org.bitbucket.b_c:jose4j:0.6.3')
-    compile('org.bouncycastle:bcprov-jdk15on:1.59')
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile('org.springframework.boot:spring-boot-starter-security')
-    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile('org.springframework.session:spring-session-jdbc')
+    compile 'co.nstant.in:cbor:0.8'
+    compile 'com.google.guava:guava:24.1-jre'
+    compile 'com.google.http-client:google-http-client-jackson2:1.23.0'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.9.5'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
+    compile 'javax.inject:javax.inject:1'
+    compile 'org.apache.httpcomponents:httpclient:4.5.5'
+    compile 'org.bitbucket.b_c:jose4j:0.6.3'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.59'
 
-    runtime('mysql:mysql-connector-java')
-    runtime('org.springframework.boot:spring-boot-devtools')
+    testCompile 'org.mockito:mockito-core:2.18.0'
+    testCompile 'org.mockito:mockito-junit-jupiter:2.18.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+}
 
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.github.kasecato'
+            artifactId 'webauthn-server-core'
+            version '0.0.2-SNAPSHOT'
+
+            from components.java
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', 'WebAuthn Server Core')
+                root.appendNode('description', 'A Java Relying Party implementation of the WebAuthn specification.')
+                root.appendNode('url', 'https://github.com/kasecato/webauthndemo/tree/webauthn-server-core')
+                root.appendNode('inceptionYear', '2018')
+
+                def scm = root.appendNode('scm')
+                scm.appendNode('url', 'https://github.com/kasecato/webauthndemo')
+                scm.appendNode('connection', 'scm:https://kasecato@github.com/kasecato/webauthndemo.git')
+                scm.appendNode('developerConnection', 'scm:git://github.com/kasecato/webauthndemo.git')
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                license.appendNode('distribution', 'repo')
+
+                def developers = root.appendNode('developers')
+                def kasecato = developers.appendNode('developer')
+                kasecato.appendNode('id', 'kasecato')
+                kasecato.appendNode('name', 'Keisuke Kato')
+                kasecato.appendNode('email', 'kasecato@gmail.com')
+            }
+        }
+    }
+    repositories {
+        maven {
+            // The staging repository: https://oss.sonatype.org/service/local/staging/deploy/maven2
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+            credentials {
+                username 'kasecato'
+                password snapshotRepoPass
+            }
+        }
+    }
 }

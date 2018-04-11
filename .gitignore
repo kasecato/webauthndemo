@@ -6,3 +6,4 @@ src/main/java/META-INF/
 .idea/
 build/
 out/
+.gradle/
