@@ -14,6 +14,7 @@
 
 package com.google.webauthn.springdemo.services;
 
+import com.github.kasecato.webauthn.server.core.exceptions.ResponseException;
 import com.google.webauthn.springdemo.entities.SessionData;
 import com.google.webauthn.springdemo.repositories.SessionDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,30 @@ public class SessionDataService {
     public void removeOldSessions(final Long userId) {
         Date expiryDate = new Date(System.currentTimeMillis() - (1 * 60 * 60 * 1000));
         sessionDataRepository.deleteByUserIdAndCreatedBefore(userId, expiryDate);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public SessionData findAndRemoveSession(
+            final Long userId,
+            final String sessionId)
+            throws ResponseException {
+
+        final long id;
+        try {
+            id = Long.valueOf(sessionId);
+        } catch (final NumberFormatException e) {
+            throw new ResponseException("Provided session id invalid");
+        }
+
+        /* Invalidate old sessions */
+        removeOldSessions(userId);
+
+        final SessionData sessionData = findByIdAndUserId(Long.valueOf(id), userId)
+                .orElseThrow(() -> new ResponseException("Session invalid"));
+
+        remove(id, userId);
+
+        return sessionData;
     }
 
 }

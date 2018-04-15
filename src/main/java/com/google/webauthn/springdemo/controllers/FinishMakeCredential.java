@@ -14,20 +14,18 @@
 
 package com.google.webauthn.springdemo.controllers;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.kasecato.webauthn.server.core.controllers.CredentialsCreate;
+import com.github.kasecato.webauthn.server.core.exceptions.ResponseException;
+import com.github.kasecato.webauthn.server.core.exceptions.SignatureException;
+import com.github.kasecato.webauthn.server.core.exceptions.WebAuthnException;
+import com.github.kasecato.webauthn.server.core.models.CredentialModel;
 import com.google.webauthn.springdemo.entities.CredentialStore;
+import com.google.webauthn.springdemo.entities.SessionData;
 import com.google.webauthn.springdemo.entities.User;
-import com.google.webauthn.springdemo.exceptions.ResponseException;
-import com.google.webauthn.springdemo.objects.AuthenticatorAttestationResponse;
-import com.google.webauthn.springdemo.objects.PublicKeyCredential;
 import com.google.webauthn.springdemo.objects.PublicKeyCredentialResponse;
-import com.google.webauthn.springdemo.server.AndroidSafetyNetServer;
-import com.google.webauthn.springdemo.server.PackedServer;
-import com.google.webauthn.springdemo.server.U2fServer;
 import com.google.webauthn.springdemo.services.CredentialStoreService;
+import com.google.webauthn.springdemo.services.SessionDataService;
 import com.google.webauthn.springdemo.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -36,35 +34,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Base64;
-
 @RestController
 public class FinishMakeCredential {
 
-    private final AndroidSafetyNetServer androidSafetyNetServer;
     private final CredentialStoreService credentialStoreService;
-    private final ObjectMapper jacksonMapper;
-    private final PackedServer packedServer;
-    private final U2fServer u2FServer;
+    private final SessionDataService sessionDataService;
     private final UserService userService;
 
-    @Autowired
     public FinishMakeCredential(
-            final AndroidSafetyNetServer androidSafetyNetServer,
             final CredentialStoreService credentialStoreService,
-            final ObjectMapper jacksonMapper,
-            final PackedServer packedServer,
-            final U2fServer u2FServer,
+            final SessionDataService sessionDataService,
             final UserService userService) {
 
-        this.androidSafetyNetServer = androidSafetyNetServer;
         this.credentialStoreService = credentialStoreService;
-        this.jacksonMapper = jacksonMapper;
-        this.packedServer = packedServer;
-        this.u2FServer = u2FServer;
+        this.sessionDataService = sessionDataService;
         this.userService = userService;
     }
 
@@ -76,57 +59,29 @@ public class FinishMakeCredential {
             @RequestHeader("Host") final String host,
             @RequestParam("data") final String data,
             @RequestParam("session") final String session,
-            final HttpServletRequest request,
-            final Authentication authentication)
-            throws ServletException {
+            final Authentication authentication) {
 
         final String username = authentication.getName();
         final User user = userService.find(username).orElseThrow(RuntimeException::new);
 
-        final JsonNode json;
+        final SessionData sessionData;
         try {
-            json = jacksonMapper.readTree(data);
-        } catch (IOException e) {
-            throw new ServletException("Input not valid json");
-        }
-        final String credentialId = json.get("id").textValue();
-        final String type = json.get("type").textValue();
-        final JsonNode makeCredentialResponse = json.get("response");
-
-        final AuthenticatorAttestationResponse attestation;
-        try {
-            attestation = new AuthenticatorAttestationResponse(makeCredentialResponse);
-        } catch (ResponseException e) {
-            throw new ServletException(e.toString());
+            sessionData = sessionDataService.findAndRemoveSession(user.getId(), session);
+        } catch (final ResponseException e) {
+            return new PublicKeyCredentialResponse(false, e.getMessage(), null);
         }
 
-        // Recoding of credential ID is needed, because the ID from HTTP servlet request doesn't support
-        // padding.
-        final String credentialIdRecoded = Base64.getUrlEncoder().encodeToString(Base64.getUrlDecoder().decode(credentialId));
-
-        final PublicKeyCredential cred = new PublicKeyCredential(attestation, credentialIdRecoded, type, Base64.getUrlDecoder().decode(credentialId));
-
-        final String domain = (request.isSecure() ? "https://" : "http://") + host;
         final String rpId = host.split(":")[0];
-        switch (cred.getAttestationType()) {
-            case FIDOU2F:
-                u2FServer.registerCredential(cred, user.getId(), session, domain, rpId);
-                break;
-            case ANDROIDSAFETYNET:
-                androidSafetyNetServer.registerCredential(cred, user.getId(), session, rpId);
-                break;
-            case PACKED:
-                packedServer.registerCredential(cred, user.getId(), session, rpId);
-                break;
-            case NONE:
-                break;
+        try {
+            // Session.getChallenge is a base64-encoded string
+            final CredentialModel verifiedCred = CredentialsCreate.create(rpId, data, sessionData.getChallenge(), user.getCredentials());
+            final CredentialStore credential = new CredentialStore(user.getId(), verifiedCred);
+            credentialStoreService.save(credential);
+        } catch (final WebAuthnException | SignatureException e) {
+            return new PublicKeyCredentialResponse(false, e.getMessage(), null);
         }
-
-        final CredentialStore credential = new CredentialStore(user.getId(), cred);
-        credentialStoreService.save(credential);
 
         final PublicKeyCredentialResponse rsp = new PublicKeyCredentialResponse(true, "Successfully created credential", null);
-
         return rsp;
     }
 

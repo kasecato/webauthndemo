@@ -15,12 +15,12 @@
 package com.google.webauthn.springdemo.controllers;
 
 import co.nstant.in.cbor.CborException;
+import com.github.kasecato.webauthn.server.core.exceptions.ResponseException;
+import com.github.kasecato.webauthn.server.core.objects.AttestationObject;
+import com.github.kasecato.webauthn.server.core.objects.AuthenticatorAttestationResponse;
+import com.github.kasecato.webauthn.server.core.objects.CredentialPublicKey;
 import com.google.webauthn.springdemo.entities.CredentialStore;
 import com.google.webauthn.springdemo.entities.User;
-import com.google.webauthn.springdemo.exceptions.ResponseException;
-import com.google.webauthn.springdemo.objects.AttestationObject;
-import com.google.webauthn.springdemo.objects.AuthenticatorAttestationResponse;
-import com.google.webauthn.springdemo.objects.CredentialPublicKey;
 import com.google.webauthn.springdemo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,8 +30,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 @RestController
 public class RegisteredKeys {
@@ -47,14 +47,14 @@ public class RegisteredKeys {
             path = "/RegisteredKeys",
             method = {RequestMethod.POST, RequestMethod.GET},
             produces = MediaType.APPLICATION_JSON_VALUE)
-    protected Set<RegisteredKey> getRegisteredKeys(final Authentication authentication)
+    protected Collection<RegisteredKey> getRegisteredKeys(final Authentication authentication)
             throws CborException, ResponseException {
 
         final String username = authentication.getName();
         final User user = userService.find(username).orElseThrow(RuntimeException::new);
-        final Set<CredentialStore> savedCreds = user.getCredentials();
+        final Collection<CredentialStore> savedCreds = user.getRawCredentials();
 
-        final Set<RegisteredKey> registeredKeys = new HashSet<>();
+        final Collection<RegisteredKey> registeredKeys = new HashSet<>();
         for (final CredentialStore c : savedCreds) {
             final AuthenticatorAttestationResponse response = new AuthenticatorAttestationResponse(c.getAttestationObjectBytes());
             final CredentialPublicKey publicKey = response.getAttestationObject().getAuthData().getAttData().getPublicKey();

@@ -14,12 +14,14 @@
 
 package com.google.webauthn.springdemo.services;
 
+import com.github.kasecato.webauthn.server.core.exceptions.ResponseException;
 import com.google.webauthn.springdemo.entities.CredentialStore;
 import com.google.webauthn.springdemo.repositories.CredentialStoreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -37,6 +39,11 @@ public class CredentialStoreService {
         return credentialStoreRepository.findByUserId(userId);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<CredentialStore> findByPublicKeyCredentialId(final String publicKeyCredentialId) {
+        return credentialStoreRepository.findByPublicKeyCredentialId(publicKeyCredentialId);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public CredentialStore save(final CredentialStore credentialStore) {
         return credentialStoreRepository.save(credentialStore);
@@ -46,6 +53,18 @@ public class CredentialStoreService {
     public CredentialStore updateSignCount(final CredentialStore credentialStore, final int signCount) {
         credentialStore.setSignCount(signCount);
         return credentialStoreRepository.save(credentialStore);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateSignCount(
+            final String publicKeyCredentialId,
+            final int signCount)
+            throws ResponseException {
+
+        findByPublicKeyCredentialId(publicKeyCredentialId)
+                .map(c -> c.setSignCount(signCount))
+                .map(c -> save(c))
+                .orElseThrow(() -> new ResponseException("The credential not found"));
     }
 
     @Transactional(rollbackFor = Exception.class)

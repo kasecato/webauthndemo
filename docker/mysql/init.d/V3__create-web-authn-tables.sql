@@ -4,7 +4,6 @@ CREATE TABLE credential (
   date                       TIMESTAMP       NOT NULL             DEFAULT CURRENT_TIMESTAMP,
   sign_count                 INT UNSIGNED    NOT NULL             DEFAULT 0,
   public_key_credential_id   VARCHAR(256)    NOT NULL,
-  public_key_credential_type VARCHAR(20)     NOT NULL,
   raw_id                     BLOB            NOT NULL,
   attestation_object_bytes   BLOB            NOT NULL
 )

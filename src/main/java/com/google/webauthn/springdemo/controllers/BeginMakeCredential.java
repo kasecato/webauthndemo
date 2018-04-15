@@ -15,16 +15,17 @@
 package com.google.webauthn.springdemo.controllers;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.github.kasecato.webauthn.server.core.controllers.CredentialsCreate;
+import com.github.kasecato.webauthn.server.core.objects.AttestationConveyancePreference;
+import com.github.kasecato.webauthn.server.core.objects.AuthenticationExtensions;
+import com.github.kasecato.webauthn.server.core.objects.AuthenticatorSelectionCriteria;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredentialCreationOptions;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredentialDescriptor;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredentialEntity;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredentialParameters;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredentialUserEntity;
 import com.google.webauthn.springdemo.entities.SessionData;
 import com.google.webauthn.springdemo.entities.User;
-import com.google.webauthn.springdemo.objects.AttestationConveyancePreference;
-import com.google.webauthn.springdemo.objects.AuthenticationExtensions;
-import com.google.webauthn.springdemo.objects.AuthenticatorSelectionCriteria;
-import com.google.webauthn.springdemo.objects.PublicKeyCredentialCreationOptions;
-import com.google.webauthn.springdemo.objects.PublicKeyCredentialDescriptor;
-import com.google.webauthn.springdemo.objects.PublicKeyCredentialEntity;
-import com.google.webauthn.springdemo.objects.PublicKeyCredentialParameters;
-import com.google.webauthn.springdemo.objects.PublicKeyCredentialUserEntity;
 import com.google.webauthn.springdemo.services.SessionDataService;
 import com.google.webauthn.springdemo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class BeginMakeCredential {
         final String rpId = host.split(":")[0];
         final String rpName = email;
 
-        final PublicKeyCredentialCreationOptions options = new PublicKeyCredentialCreationOptions(email, email, rpId, rpName);
+        final PublicKeyCredentialCreationOptions options = CredentialsCreate.getCreationOptions(rpId, rpName, email, email);
 
         final SessionData session = new SessionData(user.getId(), options.getChallenge(), rpId);
         final SessionData sessionSaved = sessionDataService.save(session);

@@ -17,11 +17,14 @@ package com.google.webauthn.springdemo.repositories;
 import com.google.webauthn.springdemo.entities.CredentialStore;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface CredentialStoreRepository extends CrudRepository<CredentialStore, Long> {
 
     Set<CredentialStore> findByUserId(Long userId);
+
+    Optional<CredentialStore> findByPublicKeyCredentialId(String publicKeyCredentialId);
 
 }
 

@@ -14,6 +14,8 @@
 
 package com.google.webauthn.springdemo.entities;
 
+import com.github.kasecato.webauthn.server.core.models.CredentialModel;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,7 +25,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -50,7 +54,7 @@ public class User {
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
-    private Set<Authority> authoritiesN;
+    private Set<Authority> authorities;
 
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
@@ -113,16 +117,26 @@ public class User {
         return this;
     }
 
-    public Set<Authority> getAuthoritiesN() {
-        return authoritiesN;
+    public Collection<Authority> getAuthorities() {
+        return authorities;
     }
 
-    public User setAuthoritiesN(final Set<Authority> authoritiesN) {
-        this.authoritiesN = authoritiesN;
+    public User setAuthorities(final Set<Authority> authorities) {
+        this.authorities = authorities;
         return this;
     }
 
-    public Set<CredentialStore> getCredentials() {
+    public Collection<CredentialModel> getCredentials() {
+        return credentials.stream()
+                .map(c -> new CredentialModel(
+                        c.getPublicKeyCredentialId(),
+                        c.getRawId(),
+                        c.getSignCount(),
+                        c.getAttestationObjectBytes()))
+                .collect(Collectors.toList());
+    }
+
+    public Collection<CredentialStore> getRawCredentials() {
         return credentials;
     }
 

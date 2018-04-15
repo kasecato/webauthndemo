@@ -14,8 +14,9 @@
 
 package com.google.webauthn.springdemo.entities;
 
-import com.google.webauthn.springdemo.objects.AuthenticatorAttestationResponse;
-import com.google.webauthn.springdemo.objects.PublicKeyCredential;
+import com.github.kasecato.webauthn.server.core.models.CredentialModel;
+import com.github.kasecato.webauthn.server.core.objects.AuthenticatorAttestationResponse;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredential;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -45,9 +46,6 @@ public class CredentialStore {
     @Column(name = "public_key_credential_id", nullable = false)
     private String publicKeyCredentialId;
 
-    @Column(name = "public_key_credential_type", nullable = false)
-    private String publicKeyCredentialType;
-
     @Column(name = "raw_id", nullable = false)
     private byte[] rawId;
 
@@ -65,9 +63,20 @@ public class CredentialStore {
         this.date = new Date();
         this.signCount = 0;
         this.publicKeyCredentialId = publicKeyCredential.getId();
-        this.publicKeyCredentialType = publicKeyCredential.getType();
         this.rawId = publicKeyCredential.getRawId();
         this.attestationObjectBytes = ((AuthenticatorAttestationResponse) publicKeyCredential.getResponse()).getAttestationObjectBytes();
+    }
+
+    public CredentialStore(
+            final Long userId,
+            final CredentialModel credentialModel) {
+
+        this.userId = userId;
+        this.date = new Date();
+        this.signCount = 0;
+        this.publicKeyCredentialId = credentialModel.getId();
+        this.rawId = credentialModel.getRawId();
+        this.attestationObjectBytes = credentialModel.getAttestationObjectBytes();
     }
 
     public Long getId() {
@@ -112,15 +121,6 @@ public class CredentialStore {
 
     public CredentialStore setPublicKeyCredentialId(final String publicKeyCredentialId) {
         this.publicKeyCredentialId = publicKeyCredentialId;
-        return this;
-    }
-
-    public String getPublicKeyCredentialType() {
-        return publicKeyCredentialType;
-    }
-
-    public CredentialStore setPublicKeyCredentialType(final String publicKeyCredentialType) {
-        this.publicKeyCredentialType = publicKeyCredentialType;
         return this;
     }
 

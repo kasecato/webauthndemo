@@ -15,12 +15,13 @@
 package com.google.webauthn.springdemo.controllers;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.github.kasecato.webauthn.server.core.controllers.CredentialsGet;
+import com.github.kasecato.webauthn.server.core.objects.AuthenticationExtensions;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredentialDescriptor;
+import com.github.kasecato.webauthn.server.core.objects.PublicKeyCredentialRequestOptions;
+import com.github.kasecato.webauthn.server.core.objects.UserVerificationRequirement;
 import com.google.webauthn.springdemo.entities.SessionData;
 import com.google.webauthn.springdemo.entities.User;
-import com.google.webauthn.springdemo.objects.AuthenticationExtensions;
-import com.google.webauthn.springdemo.objects.PublicKeyCredentialDescriptor;
-import com.google.webauthn.springdemo.objects.PublicKeyCredentialRequestOptions;
-import com.google.webauthn.springdemo.objects.UserVerificationRequirement;
 import com.google.webauthn.springdemo.services.SessionDataService;
 import com.google.webauthn.springdemo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,10 +61,13 @@ public class BeginGetAssertion {
         final User user = userService.find(username).orElseThrow(RuntimeException::new);
         final String rpId = host.split(":")[0];
         // String rpId = (request.isSecure() ? "https://" : "http://") + request.getHeader("Host");
-        final PublicKeyCredentialRequestOptions assertion = new PublicKeyCredentialRequestOptions(rpId);
+
+        final PublicKeyCredentialRequestOptions assertion = CredentialsGet.getReuqestOptions();
+        assertion.setRpId(rpId);
+        assertion.populateAllowList(user.getCredentials());
+
         final SessionData session = new SessionData(user.getId(), assertion.getChallenge(), rpId);
         sessionDataService.save(session);
-        assertion.populateAllowList(user.getCredentials());
 
         return new BeginGetAssertionModel(session, assertion);
     }
