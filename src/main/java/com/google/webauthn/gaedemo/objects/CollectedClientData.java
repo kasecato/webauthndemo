@@ -24,7 +24,7 @@ public class CollectedClientData {
   String challenge;
   String origin;
   String hashAlgorithm;
-  String tokenBindingId;
+  TokenBinding tokenBinding;
   AuthenticationExtensions clientExtensions;
   AuthenticationExtensions authenticatorExtensions;
 
@@ -85,8 +85,8 @@ public class CollectedClientData {
   /**
    * @return the tokenBinding
    */
-  public String getTokenBinding() {
-    return tokenBindingId;
+  public TokenBinding getTokenBinding() {
+    return tokenBinding;
   }
 
   public String getType() {
@@ -109,8 +109,8 @@ public class CollectedClientData {
         if ((getChallenge() == other.challenge) || getChallenge().equals(other.challenge)) {
           if ((getOrigin() == other.origin) || getOrigin().equals(other.origin)) {
             if ((getHashAlg() == other.hashAlgorithm) || getHashAlg().equals(other.hashAlgorithm)) {
-              if ((getTokenBinding() == other.tokenBindingId)
-                  || (getTokenBinding().equals(other.tokenBindingId))) {
+              if ((getTokenBinding() == other.tokenBinding)
+                  || (getTokenBinding().equals(other.tokenBinding))) {
                 if ((getType() == other.type) || (getType().equals(other.type))) {
                   if ((getClientExtensions() == other.clientExtensions)
                       || (getClientExtensions().equals(other.clientExtensions))) {

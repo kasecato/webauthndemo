@@ -42,9 +42,9 @@ public class CollectedClientDataTest {
     assertNotEquals(one, two);
     two.origin = "https://google.com";
     assertEquals(one, two);
-    one.tokenBindingId = "test";
+    one.tokenBinding = new TokenBinding(TokenBindingStatus.SUPPORTED, "test");
     assertNotEquals(one, two);
-    two.tokenBindingId = "test";
+    two.tokenBinding = new TokenBinding(TokenBindingStatus.SUPPORTED, "test");
     assertEquals(one, two);
   }
 
@@ -57,6 +57,7 @@ public class CollectedClientDataTest {
     clientData.challenge = "testChallenge";
     clientData.hashAlgorithm = "SHA-1";
     clientData.origin = "testOrigin";
+    clientData.tokenBinding = new TokenBinding(TokenBindingStatus.SUPPORTED, "test");
     CollectedClientData decoded = CollectedClientData.decode(clientData.encode());
     assertEquals(clientData, decoded);
   }
