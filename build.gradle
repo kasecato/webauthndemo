@@ -49,7 +49,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'com.github.kasecato'
             artifactId 'webauthn-server-core'
-            version '0.0.2-SNAPSHOT'
+            version '0.0.3-SNAPSHOT'
 
             from components.java
 
