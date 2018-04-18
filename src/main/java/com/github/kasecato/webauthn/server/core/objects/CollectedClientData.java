@@ -14,6 +14,7 @@
 
 package com.github.kasecato.webauthn.server.core.objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.kasecato.webauthn.server.core.crypto.Crypto;
@@ -22,14 +23,14 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CollectedClientData {
 
     private String type;
     private String challenge;
     private String origin;
     private String hashAlgorithm;
-    private String tokenBinding;
-    // private TokenBindingN tokenBinding;
+    //    private TokenBinding tokenBinding;
     private HashMap<String, Object> clientExtensions;
     private HashMap<String, Object> authenticatorExtensions;
 
@@ -78,18 +79,18 @@ public class CollectedClientData {
                 if ((getChallenge() == other.challenge) || getChallenge().equals(other.challenge)) {
                     if ((getOrigin() == other.origin) || getOrigin().equals(other.origin)) {
                         if ((getHashAlgorithm() == other.hashAlgorithm) || getHashAlgorithm().equals(other.hashAlgorithm)) {
-                            if ((getTokenBinding() == other.tokenBinding)
-                                    || (getTokenBinding().equals(other.tokenBinding))) {
-                                if ((getType() == other.type) || (getType().equals(other.type))) {
-                                    if ((getClientExtensions() == other.clientExtensions)
-                                            || (getClientExtensions().equals(other.clientExtensions))) {
-                                        if ((getAuthenticatorExtensions() == other.authenticatorExtensions)
-                                                || (getAuthenticatorExtensions().equals(other.authenticatorExtensions))) {
-                                            return true;
-                                        }
+                            //if ((getTokenBinding() == other.tokenBinding)
+                            //        || (getTokenBinding().equals(other.tokenBinding))) {
+                            if ((getType() == other.type) || (getType().equals(other.type))) {
+                                if ((getClientExtensions() == other.clientExtensions)
+                                        || (getClientExtensions().equals(other.clientExtensions))) {
+                                    if ((getAuthenticatorExtensions() == other.authenticatorExtensions)
+                                            || (getAuthenticatorExtensions().equals(other.authenticatorExtensions))) {
+                                        return true;
                                     }
                                 }
                             }
+                            //}
                         }
                     }
                 }
@@ -136,14 +137,14 @@ public class CollectedClientData {
         return this;
     }
 
-    public String getTokenBinding() {
-        return tokenBinding;
-    }
-
-    public CollectedClientData setTokenBinding(final String tokenBinding) {
-        this.tokenBinding = tokenBinding;
-        return this;
-    }
+//    public TokenBinding getTokenBinding() {
+//        return tokenBinding;
+//    }
+//
+//    public CollectedClientData setTokenBinding(final TokenBinding tokenBinding) {
+//        this.tokenBinding = tokenBinding;
+//        return this;
+//    }
 
     public HashMap<String, Object> getClientExtensions() {
         return clientExtensions;

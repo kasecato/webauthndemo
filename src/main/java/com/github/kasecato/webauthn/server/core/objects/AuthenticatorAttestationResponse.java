@@ -15,6 +15,7 @@
 package com.github.kasecato.webauthn.server.core.objects;
 
 import co.nstant.in.cbor.CborException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,6 +84,7 @@ public class AuthenticatorAttestationResponse extends AuthenticatorResponse {
         return attestationObjectBytes;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class AttestationResponseJson {
 
         private String clientDataJSON;
@@ -105,6 +107,7 @@ public class AuthenticatorAttestationResponse extends AuthenticatorResponse {
             this.attestationObject = attestationObject;
             return this;
         }
+
     }
 
 }

@@ -14,6 +14,7 @@
 
 package com.github.kasecato.webauthn.server.core.objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,6 +71,7 @@ public class AuthenticatorAssertionResponse extends AuthenticatorResponse {
         return userHandleBytes;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class AssertionResponseJson {
         private String clientDataJSON;
         private String authenticatorData;

@@ -35,8 +35,7 @@ dependencies {
     compile 'org.bitbucket.b_c:jose4j:0.6.3'
     compile 'org.bouncycastle:bcprov-jdk15on:1.59'
 
-    testCompile 'org.mockito:mockito-core:2.18.0'
-    testCompile 'org.mockito:mockito-junit-jupiter:2.18.0'
+    testCompile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
 }
