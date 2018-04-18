@@ -63,12 +63,25 @@ public class BeginMakeCredential {
 
         final String username = authentication.getName();
         final User user = userService.find(username).orElseThrow(RuntimeException::new);
-        final String email = user.getEmail();
-        // String rpId = (request.isSecure() ? "https://" : "http://") + request.getHeader("Host");
-        final String rpId = host.split(":")[0];
-        final String rpName = email;
 
-        final PublicKeyCredentialCreationOptions options = CredentialsCreate.getCreationOptions(rpId, rpName, email, email);
+        final String rpName = null;
+        final String rpIcon = null;
+        final String rpId = host.split(":")[0];
+        final String userName = user.getUsername();
+        final String userIcon = null;
+        final String displayName = user.getNickname();
+        final String userId = user.getEmail();
+        // String rpId = (request.isSecure() ? "https://" : "http://") + request.getHeader("Host");
+
+        final PublicKeyCredentialCreationOptions options = CredentialsCreate.getCreationOptions(
+                rpName,
+                rpIcon,
+                rpId,
+                userName,
+                userIcon,
+                displayName,
+                userId
+        );
 
         final SessionData session = new SessionData(user.getId(), options.getChallenge(), rpId);
         final SessionData sessionSaved = sessionDataService.save(session);
