@@ -1,14 +1,17 @@
 plugins {
-    id "net.ltgt.errorprone" version "0.0.13"
+    id 'net.ltgt.errorprone' version '0.0.13'
 }
 
 apply plugin: 'java'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 ext {
     compatibilityVersion = '1.8'
     snapshotRepoPass = project.hasProperty('snapshotRepoPass') ? project.getProperty('snapshotRepoPass') : ''
+    isReleaseVersion = !version.endsWith('SNAPSHOT')
 }
+
 sourceCompatibility = compatibilityVersion
 targetCompatibility = compatibilityVersion
 
@@ -18,7 +21,7 @@ repositories {
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    version = 4.6
+    version = 4.7
 }
 
 dependencies {
@@ -44,48 +47,69 @@ test {
     useJUnitPlatform()
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId 'com.github.kasecato'
-            artifactId 'webauthn-server-core'
-            version '0.0.3-SNAPSHOT'
-
-            from components.java
-
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('name', 'WebAuthn Server Core')
-                root.appendNode('description', 'A Java Relying Party implementation of the WebAuthn specification.')
-                root.appendNode('url', 'https://github.com/kasecato/webauthndemo/tree/webauthn-server-core')
-                root.appendNode('inceptionYear', '2018')
-
-                def scm = root.appendNode('scm')
-                scm.appendNode('url', 'https://github.com/kasecato/webauthndemo')
-                scm.appendNode('connection', 'scm:https://kasecato@github.com/kasecato/webauthndemo.git')
-                scm.appendNode('developerConnection', 'scm:git://github.com/kasecato/webauthndemo.git')
-
-                def license = root.appendNode('licenses').appendNode('license')
-                license.appendNode('name', 'The Apache Software License, Version 2.0')
-                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
-                license.appendNode('distribution', 'repo')
-
-                def developers = root.appendNode('developers')
-                def kasecato = developers.appendNode('developer')
-                kasecato.appendNode('id', 'kasecato')
-                kasecato.appendNode('name', 'Keisuke Kato')
-                kasecato.appendNode('email', 'kasecato@gmail.com')
-            }
-        }
-    }
+uploadArchives {
     repositories {
-        maven {
-            // The staging repository: https://oss.sonatype.org/service/local/staging/deploy/maven2
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
-            credentials {
-                username 'kasecato'
-                password snapshotRepoPass
+        mavenDeployer {
+            // POM signature
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            // Target repository
+            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+                authentication(userName: 'kasecato', password: snapshotRepoPass)
+            }
+
+            pom.project {
+                groupId 'com.github.kasecato'
+                artifactId 'webauthn-server-core'
+                version '0.0.1'
+
+                name 'WebAuthn Server Core'
+                description 'A Java Relying Party implementation of the WebAuthn specification.'
+                url 'https://github.com/kasecato/webauthndemo/tree/webauthn-server-core'
+                inceptionYear '2018'
+                packaging 'jar'
+
+                scm {
+                    url 'https://github.com/kasecato/webauthndemo'
+                    connection 'scm:https://kasecato@github.com/kasecato/webauthndemo.git'
+                    developerConnection 'scm:git://github.com/kasecato/webauthndemo.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'kasecato'
+                        name = 'Keisuke Kato'
+                        email = 'kasecato@gmail.com'
+                    }
+                }
             }
         }
     }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives jar, javadocJar, sourcesJar
+}
+
+signing {
+    required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
 }
