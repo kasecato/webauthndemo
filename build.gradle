@@ -27,7 +27,6 @@ compileJava {
 
 repositories {
     mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/milestone" }
     mavenLocal()
@@ -36,7 +35,7 @@ repositories {
 dependencies {
     errorprone 'com.google.errorprone:error_prone_core:2.2.0'
 
-    compile('com.github.kasecato:webauthn-server-core:0.0.3-SNAPSHOT')
+    compile('com.github.kasecato:webauthn-server-core:0.0.1')
     compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
